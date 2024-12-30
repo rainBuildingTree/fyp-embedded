@@ -9,4 +9,4 @@ def convert_image_to_data(path):
     g = np_image[:,:,1] >> 2
     b = np_image[:,:,2] >> 3
     rgb = (r << 11) | (g << 5) | b
-    return rgb.tolist()
+    return rgb.flatten().tolist()
