@@ -78,9 +78,11 @@ class DisplayDriver:
             self.spi.writebytes2(data)
         else:
             transfer_count = int(len(data) / 250)
-            for i in range(transfer_count-1):
+            for i in range(transfer_count):
                 self.spi.writebytes2(data[i*250:(i+1)*250])
             self.spi.writebytes2(data[(transfer_count)*250:len(data)])
+            print(transfer_count*250)
+            print(len(data))
 
     def split_to_bytes(self, data):
             return [(data & 0xFF00) >> 8, (data & 0xFF)]
@@ -107,6 +109,10 @@ processed_img = []
 display = DisplayDriver()
 for pixel in img:
     processed_img.extend(display.split_to_bytes(pixel))
+target_size = 128 * 128 * 2
+fill_size = target_size - len(processed_img)
+fill_data = [0xFF] * fill_size
+processed_img.extend(fill_data)
 display.set_window(0,0,128,128)
 display.write_command(DisplayDriver.CMD_MEM_WRITE, processed_img)
 
