@@ -3,6 +3,7 @@ import img_converter as ic
 
 img_path = './test_images/skullman.png'
 processed_img = ic.convert_image_to_data(img_path)
+print(len(processed_img))
 display = dpd.DisplayDriver()
 target_size = 128 * 128 * 2
 fill_size = target_size - len(processed_img)
