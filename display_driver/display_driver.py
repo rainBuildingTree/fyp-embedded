@@ -90,8 +90,8 @@ class DisplayDriver:
         y0 = y + DisplayDriver.DEVICE_ROW_OFFSET
         x1 = x0 + width - 1
         y1 = y0 + height - 1
-        col_data = [x0, x1]
-        row_data = [y0, y1]
+        col_data = self.split_to_bytes(x0) + self.split_to_bytes(x1)
+        row_data = self.split_to_bytes(y0) + self.split_to_bytes(y1)
         self.write_command(DisplayDriver.CMD_COL_ADDR_SET, col_data)
         self.write_command(DisplayDriver.CMD_ROW_ADDR_SET, row_data)
     
