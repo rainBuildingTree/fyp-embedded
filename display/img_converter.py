@@ -13,8 +13,10 @@ def convert_image_to_data(path):
     r = np_image[:,:,0] >> 3
     g = np_image[:,:,1] >> 2
     b = np_image[:,:,2] >> 3
-    rgb = (b << 11) | (g << 5) | r
+    print(f"r: {r[0]}, g: {g[0]}, b: {b[0]}")
+    rgb = (r << 11) | (g << 5) | b
     flat_rgb = rgb.flatten().tolist()
+    reversed_rgb = [reverse_bits(n) for n in flat_rgb]
     final_data = []
     for data in flat_rgb:
         final_data.extend(split_data_to_8bit(data))
@@ -30,3 +32,11 @@ def load_list_data(path):
     with open(path, 'r') as file:
         loaded_list = [int(line.strip()) for line in file]
         return loaded_list
+    
+def reverse_bits(n, bit_length = 16):
+    reversed_n = 0
+    for i in range(bit_length):
+        reversed_n <<= 1
+        reversed_n |= (n & 1)
+        n >>= 1
+    return reversed_n
