@@ -20,6 +20,7 @@ class DisplayDriver:
     CMD_COL_ADDR_SET = 0x2A
     CMD_ROW_ADDR_SET = 0x2B
     CMD_MEM_WRITE = 0x2C
+    CMD_TEARING_EFFECT_OFF = 0x34
     CMD_TEARING_EFFECT_ON = 0x35
     CMD_MEM_ACCESS_CTRL = 0x36
     # Hardware Data
@@ -42,6 +43,7 @@ class DisplayDriver:
         # Setup Display Hardware
         self.reset_device()
         self.write_command(DisplayDriver.CMD_PIXEL_FMT_SET, DisplayDriver.DAT_16BIT_PER_PIXEL)
+        self.write_command(DisplayDriver.CMD_MEM_ACCESS_CTRL, 0b00001000)
         self.write_command(DisplayDriver.CMD_DISPLAY_INVERSION_ON)
         self.write_command(DisplayDriver.CMD_SLEEP_OUT)
         time.sleep(0.12)
@@ -83,6 +85,7 @@ class DisplayDriver:
             self.spi.writebytes2(data[(transfer_count)*250:len(data)])
             print(transfer_count*250)
             print(len(data))
+            print(data[-2], data[-1])
 
     def split_to_bytes(self, data):
             return [(data & 0xFF00) >> 8, (data & 0xFF)]

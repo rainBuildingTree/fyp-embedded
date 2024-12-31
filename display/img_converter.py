@@ -2,23 +2,23 @@ from PIL import Image
 import numpy as np
 
 def split_data_to_8bit(data):
-    hi = (data >> 8) & 0xFF
-    lo = data & 0xFF
-    return [hi, lo]
+    return [((data & 0xFF00) >> 8) & 0xFF, data & 0xFF]
 
 def convert_image_to_data(path):
     image = Image.open(path)
     resized_image = image.resize((128, 128))
-    np_image = np.array(resized_image)
+    np_image = np.array(resized_image, dtype=np.uint16)
     r = np_image[:,:,0] >> 3
     g = np_image[:,:,1] >> 2
     b = np_image[:,:,2] >> 3
-    print(f"r: {r[0]}, g: {g[0]}, b: {b[0]}")
-    rgb = (r << 11) | (g << 5) | b
-    flat_rgb = rgb.flatten().tolist()
+    r = r.flatten().tolist()
+    g = g.flatten().tolist()
+    b = b.flatten().tolist()
+    rgb = [(rr << 11| gg << 5| bb) & 0xFFFF for rr, gg, bb in zip(r, g, b)] 
+    flat_rgb = rgb
     reversed_rgb = [reverse_bits(n) for n in flat_rgb]
     final_data = []
-    for data in reversed_rgb:
+    for data in rgb:
         final_data.extend(split_data_to_8bit(data))
     return final_data
 
