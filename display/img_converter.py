@@ -13,7 +13,7 @@ def convert_image_to_data(path):
     r = np_image[:,:,0] >> 3
     g = np_image[:,:,1] >> 2
     b = np_image[:,:,2] >> 3
-    rgb = (r << 11) | (g << 5) | b
+    rgb = (b << 11) | (g << 5) | r
     flat_rgb = rgb.flatten().tolist()
     final_data = []
     for data in flat_rgb:
