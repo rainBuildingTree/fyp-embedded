@@ -1,5 +1,5 @@
 import display_driver as dpd
-import img_converter as ic
+import display.img2dat as ic
 
 img_path = './test_images/skullman.png'
 processed_img = ic.convert_image_to_data(img_path)

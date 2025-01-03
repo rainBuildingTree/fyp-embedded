@@ -15,8 +15,6 @@ def convert_image_to_data(path):
     g = g.flatten().tolist()
     b = b.flatten().tolist()
     rgb = [(rr << 11| gg << 5| bb) & 0xFFFF for rr, gg, bb in zip(r, g, b)] 
-    flat_rgb = rgb
-    reversed_rgb = [reverse_bits(n) for n in flat_rgb]
     final_data = []
     for data in rgb:
         final_data.extend(split_data_to_8bit(data))

@@ -1,4 +1,4 @@
-import img_converter as ic
+import display.img2dat as ic
 
 img_path = './test_images/skullman.png'
 path_to = './test_images/skullman2.txt'
