@@ -1,6 +1,7 @@
 import RPi.GPIO as GPIO
 import spidev
 import time
+import img2dat
 
 class DisplayDriver:
     # Manipulate offset according to the device condition
@@ -30,6 +31,9 @@ class DisplayDriver:
     SPI_DEVICE = 0
     DISPLAY_WIDTH = 128
     DISPLAY_HEIGHT = 128
+    FONT_WIDTH = 10
+    FONT_HEIGHT = 15
+    FONT_LOCATION = './font_images/'
 
     def __init__(self):
         # Setup SPI
@@ -49,6 +53,13 @@ class DisplayDriver:
         time.sleep(0.12)
         self.write_command(DisplayDriver.CMD_DISPLAY_ON)
         time.sleep(0.02)
+
+        # Load Font Data
+        for i in range(10):
+            self.font_dict[f"{i}"] = img2dat.convert_image_to_data(f"{DisplayDriver.FONT_LOCATION}{i}.png")
+        for char in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+            self.font_dict[f"{char}"] = img2dat.convert_image_to_data(f"{DisplayDriver.FONT_LOCATION}{char}.png")
+        self.font_dict["special"] = img2dat.convert_image_to_data(f"{DisplayDriver.FONT_LOCATION}special.png")
 
     def __del__(self):
         self.write_command(DisplayDriver.CMD_DISPLAY_OFF)
@@ -110,3 +121,11 @@ class DisplayDriver:
         self.set_window(x, y, width, height)
         data = self.split_to_bytes(r5g6b5color) * (width * height)
         self.write_command(DisplayDriver.CMD_MEM_WRITE, data)
+    
+    def render_char(self, x, y, char):
+        self.set_window(x, y, DisplayDriver.FONT_WIDTH, DisplayDriver.FONT_HEIGHT)
+        self.write_command(DisplayDriver.CMD_MEM_WRITE, self.font_dict[char])
+
+
+# SPEAKING
+# LISTENING

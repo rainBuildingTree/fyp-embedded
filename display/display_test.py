@@ -1,5 +1,5 @@
 import display_driver as dpd
-import display.img2dat as ic
+import img2dat as ic
 
 img_path = './test_images/skullman.png'
 processed_img = ic.convert_image_to_data(img_path)
@@ -14,6 +14,14 @@ display.set_window(0,0,128,128)
 display.write_command(dpd.DisplayDriver.CMD_MEM_WRITE, processed_img)
 
 while True:
-    input_key = input("press x to finish")
+    input_key = input("press x to proceed")
+    if input_key == 'x':
+        break
+
+for i in range(10):
+    display.render_char(i*10, 0, 'A')
+
+while True:
+    input_key = input("press x to proceed")
     if input_key == 'x':
         break
