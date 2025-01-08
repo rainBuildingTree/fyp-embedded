@@ -56,10 +56,10 @@ class DisplayDriver:
 
         # Load Font Data
         for i in range(10):
-            self.font_dict[f"{i}"] = img2dat.convert_image_to_data(f"{DisplayDriver.FONT_LOCATION}{i}.png")
+            self.font_dict[f"{i}"] = img2dat.convert_image_to_data_1bit(f"{DisplayDriver.FONT_LOCATION}{i}.png")
         for char in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
-            self.font_dict[f"{char}"] = img2dat.convert_image_to_data(f"{DisplayDriver.FONT_LOCATION}{char}.png")
-        self.font_dict["special"] = img2dat.convert_image_to_data(f"{DisplayDriver.FONT_LOCATION}special.png")
+            self.font_dict[f"{char}"] = img2dat.convert_image_to_data_1bit(f"{DisplayDriver.FONT_LOCATION}{char}.png")
+        self.font_dict["special"] = img2dat.convert_image_to_data_1bit(f"{DisplayDriver.FONT_LOCATION}special.png")
 
     def __del__(self):
         self.write_command(DisplayDriver.CMD_DISPLAY_OFF)

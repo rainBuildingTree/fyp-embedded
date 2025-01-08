@@ -19,6 +19,14 @@ def convert_image_to_data(path):
     for data in rgb:
         final_data.extend(split_data_to_8bit(data))
     return final_data
+def convert_image_to_data_1bit(path):
+    image = Image.open(path)
+    np_image = np.array(image, dtype=np.uint16)
+    tf = np_image.flatten.tolist()
+    final_data = []
+    for data in tf:
+        final_data.extend(split_data_to_8bit(data))
+    return final_data
 
 def convert_and_save(path_from, path_to):
     list_data = convert_image_to_data(path_from)
