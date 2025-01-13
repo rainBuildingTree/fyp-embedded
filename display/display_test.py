@@ -18,8 +18,7 @@ while True:
     if input_key == 'x':
         break
 
-for i in range(10):
-    display.render_char(i*10, 0, 'A')
+display.render_text(0,0,"HELLO WORLD AND GOODBYE WORLD")
 
 while True:
     input_key = input("press x to proceed")

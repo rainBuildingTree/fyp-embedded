@@ -55,6 +55,7 @@ class DisplayDriver:
         time.sleep(0.02)
 
         # Load Font Data
+        self.font_dict = {}
         for i in range(10):
             self.font_dict[f"{i}"] = img2dat.convert_image_to_data_1bit(f"{DisplayDriver.FONT_LOCATION}{i}.png")
         for char in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
@@ -123,9 +124,18 @@ class DisplayDriver:
         self.write_command(DisplayDriver.CMD_MEM_WRITE, data)
     
     def render_char(self, x, y, char):
+        if char not in self.font_dict:
+            self.render_square(x, y, DisplayDriver.FONT_WIDTH, DisplayDriver.FONT_HEIGHT, 0xFFFF)
+            return
         self.set_window(x, y, DisplayDriver.FONT_WIDTH, DisplayDriver.FONT_HEIGHT)
         self.write_command(DisplayDriver.CMD_MEM_WRITE, self.font_dict[char])
 
-
-# SPEAKING
-# LISTENING
+    def render_text(self, x, y, text):
+        if len(text) < 1:
+            return
+        i = 0
+        for char in text:
+            current_x = int((x + i * DisplayDriver.FONT_WIDTH) % 128)
+            current_y = y + int((x + i * DisplayDriver.FONT_WIDTH) / 128) * DisplayDriver.FONT_HEIGHT
+            self.render_char(current_x, current_y, char)
+            i = i + 1
