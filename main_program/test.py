@@ -2,11 +2,11 @@ import cv2
 import socketio
 import base64
 import time
-from picamera2 import Picamera2
-import requests
 import os
 import sounddevice as sd
 from scipy.io.wavfile import write
+from picamera2 import Picamera2
+import requests
 
 SERVER_URL = "143.89.94.254:5000"
 API_KEY = "1234"
@@ -19,11 +19,11 @@ sio = socketio.Client()
 
 @sio.event
 def connect():
-    print(f"Connected to server in {selected_mode} mode")
+    print(f"[✓] Connected to server in {sio.mode} mode")
 
 @sio.on('message')
 def on_message(data):
-    print(data['data'])
+    print(f"[Server Message] {data['data']}")
 
 @sio.on('prediction')
 def on_prediction(data):
@@ -36,67 +36,90 @@ def on_video_frame(data):
 
 @sio.on('error')
 def on_error(data):
-    print(f"Error: {data['error']}")
+    print(f"[Error] {data['error']}")
 
 def sign_to_text_mode():
     try:
-        # 서버 연결
+        sio.mode = "sign-to-text"
         sio.connect(f"ws://{SERVER_URL}?api_key={API_KEY}&mode=sign-to-text")
-        # Picamera2 스트림 시작
         picam2.start()
+
+        print("🟢 Sign-to-text 모드 시작 (Ctrl+C로 종료)")
         while True:
-            # Picamera2로부터 프레임 캡처 (numpy 배열)
             frame = picam2.capture_array()
             success, buffer = cv2.imencode('.jpg', frame)
             if not success:
                 continue
             frame_base64 = base64.b64encode(buffer).decode('utf-8')
-            # 서버로 인코딩된 프레임 전송
             sio.emit('frame', f"data:image/jpeg;base64,{frame_base64}")
             time.sleep(0.05)
+
     except KeyboardInterrupt:
-         print("Stopping sign-to-text mode...")
+        print("\n[!] 사용자 중단. Sign-to-text 종료.")
+    except Exception as e:
+        print(f"[!] 오류 발생: {str(e)}")
     finally:
-         picam2.stop()  # 스트림 종료
-         sio.disconnect()
+        picam2.stop()
+        if sio.connected:
+            sio.disconnect()
 
 def speech_to_sign_mode():
+    audio_path = "input_audio.wav"
     try:
-        print("Recording 10 seconds of audio...")
-        duration = 10  # seconds
+        print("🎤 음성 녹음 중 (10초)...")
+        duration = 10
         samplerate = 16000
         audio = sd.rec(int(duration * samplerate), samplerate=samplerate, channels=1, dtype='int16')
-        sd.wait()  # 녹음 완료 대기
+        sd.wait()
 
-        # 저장
-        audio_path = "input_audio.wav"
         write(audio_path, samplerate, audio)
-        print("Audio recorded and saved.")
+        print(f"[✓] 오디오 저장 완료: {audio_path}")
 
-        # 서버 연결
+        # 서버 연결 (socket.io는 실제 사용 안 함)
+        sio.mode = "speech-to-sign"
         sio.connect(f"http://{SERVER_URL}?api_key={API_KEY}&mode=speech-to-sign")
 
-        # WAV 파일 업로드
         with open(audio_path, 'rb') as f:
             files = {'file': (audio_path, f, 'audio/wav')}
-            response = requests.post(f"http://{SERVER_URL}/predict_speech", files=files)
+            response = requests.post(f"http://{SERVER_URL}/handle_audio", files=files)
 
         if response.status_code == 200:
-            with open("output_video.mp4", "wb") as f:
+            output_path = "output_video.mp4"
+            with open(output_path, "wb") as f:
                 f.write(response.content)
-            print("Video saved as output_video.mp4")
+            print(f"[✓] 비디오 저장 완료: {output_path}")
         else:
-            print(f"Error: {response.text}")
+            print(f"[!] 서버 오류: {response.text}")
+
     except Exception as e:
-        print(f"Error: {str(e)}")
+        print(f"[!] 오류 발생: {str(e)}")
     finally:
-        sio.disconnect()
+        if sio.connected:
+            sio.disconnect()
+        if os.path.exists(audio_path):
+            os.remove(audio_path)
+
+def main():
+    try:
+        while True:
+            print("\n=== 모드 선택 ===")
+            print("1. 손말 → 텍스트 (sign-to-text)")
+            print("2. 음성 → 손말 (speech-to-sign)")
+            print("3. 종료")
+            selected_mode = input("모드를 선택하세요 (1/2/3): ").strip()
+
+            if selected_mode == "1":
+                sign_to_text_mode()
+            elif selected_mode == "2":
+                speech_to_sign_mode()
+            elif selected_mode == "3":
+                print("👋 프로그램 종료.")
+                break
+            else:
+                print("❌ 잘못된 입력입니다. 다시 선택하세요.")
+    except KeyboardInterrupt:
+        print("\n👋 프로그램 강제 종료됨.")
 
 if __name__ == "__main__":
-    selected_mode = input("Select mode (sign-to-text / speech-to-sign): ").strip().lower()
-    if selected_mode == "sign-to-text":
-        sign_to_text_mode()
-    elif selected_mode == "speech-to-sign":
-        speech_to_sign_mode()
-    else:
-        print("Invalid mode selected!")
+    main()
+
