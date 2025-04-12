@@ -2,11 +2,16 @@ import cv2
 import socketio
 import base64
 import time
+from picamera2 import Picamera2
 import requests
 import os
 
 SERVER_URL = "http://143.89.94.254:5000"
 API_KEY = "1234"
+
+# Picamera2 초기화 및 설정 (비디오 해상도: 640x480)
+picam2 = Picamera2()
+picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}))
 
 sio = socketio.Client()
 
@@ -32,22 +37,26 @@ def on_error(data):
     print(f"Error: {data['error']}")
 
 def sign_to_text_mode():
-    cap = cv2.VideoCapture(0)
     try:
+        # 서버 연결
         sio.connect(f"{SERVER_URL}?api_key={API_KEY}&mode=sign-to-text")
+        # Picamera2 스트림 시작
+        picam2.start()
         while True:
-            ret, frame = cap.read()
-            if not ret:
-                break
-            _, buffer = cv2.imencode('.jpg', frame)
+            # Picamera2로부터 프레임 캡처 (numpy 배열)
+            frame = picam2.capture_array()
+            success, buffer = cv2.imencode('.jpg', frame)
+            if not success:
+                continue
             frame_base64 = base64.b64encode(buffer).decode('utf-8')
+            # 서버로 인코딩된 프레임 전송
             sio.emit('frame', f"data:image/jpeg;base64,{frame_base64}")
             time.sleep(0.05)
     except KeyboardInterrupt:
-        print("Stopping sign-to-text mode...")
+         print("Stopping sign-to-text mode...")
     finally:
-        cap.release()
-        sio.disconnect()
+         picam2.stop()  # 스트림 종료
+         sio.disconnect()
 
 def speech_to_sign_mode(audio_path):
     try:
