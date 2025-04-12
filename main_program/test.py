@@ -6,7 +6,7 @@ from picamera2 import Picamera2
 import requests
 import os
 
-SERVER_URL = "http://143.89.94.254:5000"
+SERVER_URL = "143.89.94.254:5000"
 API_KEY = "1234"
 
 # Picamera2 초기화 및 설정 (비디오 해상도: 640x480)
@@ -39,7 +39,7 @@ def on_error(data):
 def sign_to_text_mode():
     try:
         # 서버 연결
-        sio.connect(f"{SERVER_URL}?api_key={API_KEY}&mode=sign-to-text")
+        sio.connect(f"ws://{SERVER_URL}?api_key={API_KEY}&mode=sign-to-text")
         # Picamera2 스트림 시작
         picam2.start()
         while True:
@@ -60,7 +60,7 @@ def sign_to_text_mode():
 
 def speech_to_sign_mode(audio_path):
     try:
-        sio.connect(f"{SERVER_URL}?api_key={API_KEY}&mode=speech-to-sign")
+        sio.connect(f"http://{SERVER_URL}?api_key={API_KEY}&mode=speech-to-sign")
         response = requests.post(
             f"{SERVER_URL}/predict_speech?mode=speech-to-sign",
             json={"audio_path": audio_path},
