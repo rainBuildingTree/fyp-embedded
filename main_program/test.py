@@ -5,6 +5,8 @@ import time
 from picamera2 import Picamera2
 import requests
 import os
+import sounddevice as sd
+from scipy.io.wavfile import write
 
 SERVER_URL = "143.89.94.254:5000"
 API_KEY = "1234"
@@ -58,20 +60,33 @@ def sign_to_text_mode():
          picam2.stop()  # 스트림 종료
          sio.disconnect()
 
-def speech_to_sign_mode(audio_path):
+def speech_to_sign_mode():
     try:
+        print("Recording 10 seconds of audio...")
+        duration = 10  # seconds
+        samplerate = 16000
+        audio = sd.rec(int(duration * samplerate), samplerate=samplerate, channels=1, dtype='int16')
+        sd.wait()  # 녹음 완료 대기
+
+        # 저장
+        audio_path = "input_audio.wav"
+        write(audio_path, samplerate, audio)
+        print("Audio recorded and saved.")
+
+        # 서버 연결
         sio.connect(f"http://{SERVER_URL}?api_key={API_KEY}&mode=speech-to-sign")
-        response = requests.post(
-            f"{SERVER_URL}/predict_speech?mode=speech-to-sign",
-            json={"audio_path": audio_path},
-            headers={"Content-Type": "application/json"}
-        )
+
+        # WAV 파일 업로드
+        with open(audio_path, 'rb') as f:
+            files = {'file': (audio_path, f, 'audio/wav')}
+            response = requests.post(f"http://{SERVER_URL}/predict_speech", files=files)
+
         if response.status_code == 200:
             with open("output_video.mp4", "wb") as f:
                 f.write(response.content)
             print("Video saved as output_video.mp4")
         else:
-            print(f"Error: {response.json()['error']}")
+            print(f"Error: {response.text}")
     except Exception as e:
         print(f"Error: {str(e)}")
     finally:
