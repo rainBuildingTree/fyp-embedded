@@ -97,10 +97,6 @@ if __name__ == "__main__":
     if selected_mode == "sign-to-text":
         sign_to_text_mode()
     elif selected_mode == "speech-to-sign":
-        audio_path = input("Enter audio file path: ").strip()
-        if os.path.exists(audio_path):
-            speech_to_sign_mode(audio_path)
-        else:
-            print("Audio file not found!")
+        speech_to_sign_mode()
     else:
         print("Invalid mode selected!")
