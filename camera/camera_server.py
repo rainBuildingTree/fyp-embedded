@@ -22,7 +22,7 @@ picam2.configure(camera_config)
 stream = client_socket.makefile('wb') 
 output = FileOutput(stream)
 encoder = H264Encoder(bitrate=10000000)
-picam2.start_recording(encoder, output)  
+picam2.start_recording(encoder, output)
 
 picam2.start()
 

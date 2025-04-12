@@ -32,4 +32,3 @@ finally:
     picam2.stop()
     conn.close()
     server_socket.close()
-
