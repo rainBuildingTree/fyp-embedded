@@ -74,8 +74,6 @@ def play_5_frames_with_input(video_path: str):
 
 
 if __name__ == "__main__":
-    # 디스플레이 드라이버 초기화
-    display = dpd()
 
     # 출력할 비디오 경로 지정
     video_path = "example.mp4"  # 반드시 128x128에 적당한 영상이어야 함 (크롭됨)
