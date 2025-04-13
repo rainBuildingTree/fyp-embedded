@@ -22,6 +22,10 @@ print("video play loaded")
 print("Module Loading Finished!\n")
 import subprocess
 
+from picamera2 import Picamera2
+picam2 = Picamera2()
+picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}))
+
 print("Start Data Initializing...\n")
 SERVER_URL = "143.89.94.254:5000"
 API_KEY = "1234"
@@ -51,7 +55,7 @@ def on_video_frame(data):
 def on_error(data):
     print(f"[Error] {data['error']}")
 
-def sign_to_text_mode(picam2):
+def sign_to_text_mode():
     try:
         #sio.mode = "sign-to-text"
         #sio.connect(f"ws://{SERVER_URL}?api_key={API_KEY}&mode=sign-to-text")
@@ -127,7 +131,7 @@ print("Methods Initialized")
 print("Data Initializing Finished!\n")
 
 print("Start Main Program")
-def main(picam2):
+def main():
     try:
         while True:
             print("\n=== 모드 선택 ===")
@@ -137,7 +141,7 @@ def main(picam2):
             selected_mode = input("모드를 선택하세요 (1/2/3): ").strip()
 
             if selected_mode == "1":
-                sign_to_text_mode(picam2)
+                sign_to_text_mode()
             elif selected_mode == "2":
                 speech_to_sign_mode()
             elif selected_mode == "3":
