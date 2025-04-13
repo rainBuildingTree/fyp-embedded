@@ -70,10 +70,11 @@ def sign_to_text_mode():
         ])
         with open('buffer_rotated.mp4', 'rb') as f:
             files = {'file': ('buffer_rotated.mp4', f, 'video/mp4')}
-            response = requests.post(f"http://{SERVER_URL}/upload?api_key={API_KEY}", files=files)
-            with open('output_video.mp4', 'wb') as outputb:
-                outputb.write(response.content)
-        play_video_on_display('output_video.mp4', 15)
+            response = requests.post(f"http://{SERVER_URL}/upload_sign_video?api_key={API_KEY}", files=files)
+            print(str(response.content))
+            #with open('output_video.mp4', 'wb') as outputb:
+            #    outputb.write(response.content)
+        #play_video_on_display('output_video.mp4', 15)
         #while True:
         #    frame = picam2.capture_array()
         #    success, buffer = cv2.imencode('.jpg', frame)
