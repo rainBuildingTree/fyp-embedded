@@ -1,22 +1,36 @@
+print("Start Module Loading...\n")
 import cv2
+print("cv2 loaded")
 import socketio
+print("socketio loaded")
 import base64
+print("base64 loaded")
 import time
+print("time loaded")
 import os
+print("os loaded")
 import sounddevice as sd
+print("sounddevice loaded")
 from scipy.io.wavfile import write
+print("scipy loaded")
 from picamera2 import Picamera2
+print("piCamera2 loaded")
 import requests
+print("request loaded")
+from ..display.video_play import *
+print("video play loaded")
+print("Module Loading Finished!\n")
 
+print("Start Data Initializing...\n")
 SERVER_URL = "143.89.94.254:5000"
 API_KEY = "1234"
 
 # Picamera2 초기화 및 설정 (비디오 해상도: 640x480)
 picam2 = Picamera2()
 picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}))
-
+print("Camera Initialized")
 sio = socketio.Client()
-
+print("Socket Initialized")
 @sio.event
 def connect():
     print(f"[✓] Connected to server in {sio.mode} mode")
@@ -46,14 +60,20 @@ def sign_to_text_mode():
 
         print("🟢 Sign-to-text 모드 시작 (Ctrl+C로 종료)")
         picam2.start_and_record_video("buffer.mp4", duration=10)
-        while True:
-            frame = picam2.capture_array()
-            success, buffer = cv2.imencode('.jpg', frame)
-            if not success:
-                continue
-            frame_base64 = base64.b64encode(buffer).decode('utf-8')
-            sio.emit('frame', f"data:image/jpeg;base64,{frame_base64}")
-            time.sleep(0.05)
+        with open('buffer.mp4', 'rb') as f:
+            files = {'file': ('buffer.mp4', f, 'video/mp4')}
+            response = requests.post(f"http://{SERVER_URL}/handle_video", files=files)
+            with open('output_video.mp4', 'wb') as outputb:
+                outputb.write(response.content)
+        play_video_on_display('output_video.mp4', 15)
+        #while True:
+        #    frame = picam2.capture_array()
+        #    success, buffer = cv2.imencode('.jpg', frame)
+        #    if not success:
+        #        continue
+        #    frame_base64 = base64.b64encode(buffer).decode('utf-8')
+        #    sio.emit('frame', f"data:image/jpeg;base64,{frame_base64}")
+        #    time.sleep(0.05)
 
     except KeyboardInterrupt:
         print("\n[!] 사용자 중단. Sign-to-text 종료.")
@@ -99,7 +119,10 @@ def speech_to_sign_mode():
             sio.disconnect()
         if os.path.exists(audio_path):
             os.remove(audio_path)
+print("Methods Initialized")
+print("Data Initializing Finished!\n")
 
+print("Start Main Program")
 def main():
     try:
         while True:
