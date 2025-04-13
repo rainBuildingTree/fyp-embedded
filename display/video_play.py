@@ -60,4 +60,4 @@ def play_video_on_display(video_path: str, fps: int = 10):
     cap.release()
 
 if __name__ == "__main__":
-    play_video_on_display("example.mp4", fps=5)  # or 5, 15 etc.
+    play_video_on_display("example.mp4", fps=15)  # or 5, 15 etc.
