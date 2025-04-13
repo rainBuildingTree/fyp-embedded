@@ -122,6 +122,7 @@ print("Data Initializing Finished!\n")
 
 print("Start Main Program")
 def main(picam2):
+    print("loader test!")
     try:
         while True:
             print("\n=== 모드 선택 ===")
