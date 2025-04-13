@@ -65,7 +65,8 @@ def sign_to_text_mode():
         picam2.start_and_record_video("buffer.mp4", duration=10)
         subprocess.run([
             "ffmpeg", "-y", "-i", "buffer.mp4",
-            "-c", "copy", "-metadata:s:v", "rotate=270",
+            "-vf", "transpose=1",  # 실제 회전
+            "-c:a", "copy",
             "buffer_rotated.mp4"
         ])
         with open('buffer_rotated.mp4', 'rb') as f:
