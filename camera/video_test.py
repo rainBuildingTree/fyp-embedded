@@ -8,6 +8,6 @@ print('start')
 subprocess.run([
     'ffmpeg', '-y', '-i', 'test.mp4',
     '-vf', 'transpose=1',
-    'test.mp4'
+    'test_rotated.mp4'
 ])
 print('end')
