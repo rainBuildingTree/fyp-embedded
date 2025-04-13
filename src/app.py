@@ -20,6 +20,7 @@ print("request loaded")
 from video_play import *
 print("video play loaded")
 print("Module Loading Finished!\n")
+import subprocess
 
 print("Start Data Initializing...\n")
 SERVER_URL = "143.89.94.254:5000"
@@ -58,6 +59,11 @@ def sign_to_text_mode(picam2):
 
         print("🟢 Sign-to-text 모드 시작 (Ctrl+C로 종료)")
         picam2.start_and_record_video("buffer.mp4", duration=10)
+        subprocess.run([
+            'ffmpeg', '-i', 'buffer.mp4',
+            '-vf', 'transpose = 1',
+            'buffer.mp4'
+        ])
         with open('buffer.mp4', 'rb') as f:
             files = {'file': ('buffer.mp4', f, 'video/mp4')}
             response = requests.post(f"http://{SERVER_URL}/handle_video", files=files)
