@@ -7,7 +7,7 @@ cam.start_and_record_video("test.mp4", duration=10)
 print('start')
 subprocess.run([
     "ffmpeg", "-y", "-i", "test.mp4",
-    "-c", "copy", "-metadata:s:v", "rotate=90",
+    "-c", "copy", "-metadata:s:v", "rotate=270",
     "test_rotated.mp4"
 ])
 print('end')
