@@ -11,7 +11,7 @@ import time
 import os
 from picamera2 import Picamera2
 picam2 = Picamera2()
-picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}))
+picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}, transform=Picamera2.Transform(rotation=90)))
 import sounddevice as sd
 from scipy.io.wavfile import write
 import requests
