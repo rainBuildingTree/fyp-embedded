@@ -55,7 +55,7 @@ def sign_to_text_mode(picam2):
     try:
         #sio.mode = "sign-to-text"
         #sio.connect(f"ws://{SERVER_URL}?api_key={API_KEY}&mode=sign-to-text")
-        picam2.start()
+        #picam2.start()
 
         print("Sign-to-text 모드 시작 (Ctrl+C로 종료)")
         picam2.start_and_record_video("buffer.mp4", duration=10)
