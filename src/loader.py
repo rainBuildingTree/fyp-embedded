@@ -29,8 +29,10 @@ def main():
         print("2. 프로그램 종료\n")
         selected = input().strip()
         if selected == '1':
-            main()
+            app.main()
         else:
             return
-    
+
+if __name__ == '__main__':
+    main()
 
