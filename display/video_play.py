@@ -1,56 +1,77 @@
 import cv2
-import time
 import numpy as np
 from PIL import Image
-from display_driver import DisplayDriver
-
-def convert_frame_to_r5g6b5(image: Image.Image) -> list[int]:
-    """
-    Pillow 이미지 객체를 RGB565 포맷으로 변환하여 list[int]로 반환
-    """
-    image = image.convert('RGB')
-    data = np.array(image)
-    r = (data[:, :, 0] >> 3).astype(np.uint16)
-    g = (data[:, :, 1] >> 2).astype(np.uint16)
-    b = (data[:, :, 2] >> 3).astype(np.uint16)
-    rgb565 = (r << 11) | (g << 5) | b
-    return rgb565.flatten().tolist()
+import display_driver as dpd
 
 def center_crop_to_square(frame):
     h, w, _ = frame.shape
     if w > h:
         delta = (w - h) // 2
-        frame = frame[:, delta:delta+h]
+        frame = frame[:, delta:delta + h]
     else:
         delta = (h - w) // 2
-        frame = frame[delta:delta+w, :]
+        frame = frame[delta:delta + w, :]
     return frame
 
-def play_5_frames_on_display(video_path: str, display: DisplayDriver, delay_sec: float = 0.5):
+def convert_frame_to_r5g6b5_bytes(frame) -> list[int]:
+    """
+    NumPy BGR frame → PIL RGB → RGB565 bytes list
+    """
+    image = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)).convert("RGB")
+    arr = np.array(image)
+    r = (arr[:, :, 0] >> 3).astype(np.uint16)
+    g = (arr[:, :, 1] >> 2).astype(np.uint16)
+    b = (arr[:, :, 2] >> 3).astype(np.uint16)
+    rgb565 = (r << 11) | (g << 5) | b
+
+    # 상위 바이트, 하위 바이트 분리
+    high = (rgb565 >> 8).flatten()
+    low = (rgb565 & 0xFF).flatten()
+    interleaved = np.column_stack((high, low)).flatten()
+    return interleaved.tolist()
+
+def play_5_frames_with_input(video_path: str):
     cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
-        print("Cannot open video.")
+        print("❌ Cannot open video.")
         return
 
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    frame_indices = [int(total_frames * i / 5) for i in range(5)]
+    if total_frames < 5:
+        print("❌ Not enough frames.")
+        return
 
-    for frame_idx in frame_indices:
-        cap.set(cv2.CAP_PROP_POS_FRAMES, frame_idx)
+    frame_indices = [int(total_frames * i / 5) for i in range(5)]
+    display = dpd.DisplayDriver()
+    target_size = 128 * 128 * 2  # 16-bit per pixel
+
+    for idx in frame_indices:
+        cap.set(cv2.CAP_PROP_POS_FRAMES, idx)
         ret, frame = cap.read()
         if not ret:
-            print(f"Failed to read frame {frame_idx}")
+            print(f"⚠️ Failed to read frame {idx}")
             continue
 
         frame = center_crop_to_square(frame)
         frame = cv2.resize(frame, (128, 128))
-        pil_image = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-        pixel_data = convert_frame_to_r5g6b5(pil_image)
-        display.render_image(0, 0, 128, 128, pixel_data)
 
-        time.sleep(delay_sec)
+        processed_img = convert_frame_to_r5g6b5_bytes(frame)
+        fill_size = target_size - len(processed_img)
+        if fill_size > 0:
+            fill_data = [0x80, 0x00] * (fill_size // 2)
+            processed_img.extend(fill_data)
+
+        display.set_window(0, 0, 128, 128)
+        display.write_command(dpd.DisplayDriver.CMD_MEM_WRITE, processed_img)
+
+        # 사용자 입력 대기
+        while True:
+            key = input("▶ Press 'x' to show next frame: ")
+            if key.lower() == 'x':
+                break
 
     cap.release()
+
 
 if __name__ == "__main__":
     # 디스플레이 드라이버 초기화
