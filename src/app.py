@@ -63,6 +63,7 @@ def sign_to_text_mode():
 
         print("Sign-to-text 모드 시작 (Ctrl+C로 종료)")
         picam2.start_and_record_video("buffer.mp4", duration=10)
+        time.sleep(1.0)
         subprocess.run([
             "ffmpeg", "-y", "-i", "buffer.mp4",
             "-vf", "transpose=1",  # 실제 회전
