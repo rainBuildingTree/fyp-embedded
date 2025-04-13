@@ -6,8 +6,8 @@ cam.configure(cam.create_video_configuration(main={"size": (640, 480)}))
 cam.start_and_record_video("test.mp4", duration=10)
 print('start')
 subprocess.run([
-    'ffmpeg', '-i', 'test.mp4',
-    '-vf', 'transpose = 1',
+    'ffmpeg', '-y' '-i', 'test.mp4',
+    '-vf', 'transpose=1',
     'test.mp4'
 ])
 print('end')
