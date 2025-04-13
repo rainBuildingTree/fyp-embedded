@@ -26,8 +26,6 @@ SERVER_URL = "143.89.94.254:5000"
 API_KEY = "1234"
 
 # Picamera2 초기화 및 설정 (비디오 해상도: 640x480)
-picam2 = Picamera2()
-picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}))
 print("Camera Initialized")
 sio = socketio.Client()
 print("Socket Initialized")
@@ -52,7 +50,7 @@ def on_video_frame(data):
 def on_error(data):
     print(f"[Error] {data['error']}")
 
-def sign_to_text_mode():
+def sign_to_text_mode(picam2):
     try:
         sio.mode = "sign-to-text"
         sio.connect(f"ws://{SERVER_URL}?api_key={API_KEY}&mode=sign-to-text")
@@ -123,7 +121,7 @@ print("Methods Initialized")
 print("Data Initializing Finished!\n")
 
 print("Start Main Program")
-def main():
+def main(picam2):
     try:
         while True:
             print("\n=== 모드 선택 ===")
@@ -133,7 +131,7 @@ def main():
             selected_mode = input("모드를 선택하세요 (1/2/3): ").strip()
 
             if selected_mode == "1":
-                sign_to_text_mode()
+                sign_to_text_mode(picam2)
             elif selected_mode == "2":
                 speech_to_sign_mode()
             elif selected_mode == "3":

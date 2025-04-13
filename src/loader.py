@@ -9,9 +9,11 @@ import socketio
 import base64
 import time
 import os
+from picamera2 import Picamera2
+picam2 = Picamera2()
+picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}))
 import sounddevice as sd
 from scipy.io.wavfile import write
-from picamera2 import Picamera2
 import requests
 from video_play import *
 import app
@@ -21,7 +23,7 @@ import importlib
 def main():
     try:
         importlib.reload(app)
-        app.main()
+        app.main(picam2)
     except KeyboardInterrupt:
         pass
     finally:
