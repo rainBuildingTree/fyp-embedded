@@ -17,7 +17,10 @@ from picamera2 import Picamera2
 print("piCamera2 loaded")
 import requests
 print("request loaded")
-from ..display.video_play import *
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+print("sys loaded")
+from display.video_play import *
 print("video play loaded")
 print("Module Loading Finished!\n")
 
