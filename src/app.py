@@ -53,20 +53,20 @@ def on_error(data):
 
 def sign_to_text_mode(picam2):
     try:
-        sio.mode = "sign-to-text"
-        sio.connect(f"ws://{SERVER_URL}?api_key={API_KEY}&mode=sign-to-text")
+        #sio.mode = "sign-to-text"
+        #sio.connect(f"ws://{SERVER_URL}?api_key={API_KEY}&mode=sign-to-text")
         picam2.start()
 
         print("🟢 Sign-to-text 모드 시작 (Ctrl+C로 종료)")
         picam2.start_and_record_video("buffer.mp4", duration=10)
         subprocess.run([
-            'ffmpeg', '-i', 'buffer.mp4',
-            '-vf', 'transpose = 1',
-            'buffer.mp4'
+            "ffmpeg", "-y", "-i", "buffer.mp4",
+            "-c", "copy", "-metadata:s:v", "rotate=270",
+            "buffer_rotated.mp4"
         ])
         with open('buffer.mp4', 'rb') as f:
-            files = {'file': ('buffer.mp4', f, 'video/mp4')}
-            response = requests.post(f"http://{SERVER_URL}/handle_video", files=files)
+            files = {'file': ('buffer_rotated.mp4', f, 'video/mp4')}
+            response = requests.post(f"http://{SERVER_URL}/upload?api_key={API_KEY}", files=files)
             with open('output_video.mp4', 'wb') as outputb:
                 outputb.write(response.content)
         play_video_on_display('output_video.mp4', 15)
