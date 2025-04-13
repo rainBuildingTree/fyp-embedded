@@ -13,8 +13,8 @@ import sounddevice as sd
 from scipy.io.wavfile import write
 from picamera2 import Picamera2
 import requests
-from src.video_play import *
-import src.app as app
+from video_play import *
+import app
 
 import importlib
 
@@ -23,6 +23,8 @@ def main():
         importlib.reload(app)
         app.main()
     except KeyboardInterrupt:
+        pass
+    finally:
         print("1. app.py 재로드")
         print("2. 프로그램 종료\n")
         selected = input().strip()
