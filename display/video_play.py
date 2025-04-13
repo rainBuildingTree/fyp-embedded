@@ -75,10 +75,10 @@ def play_5_frames_with_input(video_path: str):
 
 if __name__ == "__main__":
     # 디스플레이 드라이버 초기화
-    display = DisplayDriver()
+    display = dpd()
 
     # 출력할 비디오 경로 지정
     video_path = "example.mp4"  # 반드시 128x128에 적당한 영상이어야 함 (크롭됨)
 
     # 5프레임만 추출해서 1초 간격으로 디스플레이 출력
-    play_5_frames_on_display(video_path, display, delay_sec=1.0)
+    play_5_frames_with_input(video_path=video_path)
