@@ -45,6 +45,7 @@ def sign_to_text_mode():
         picam2.start()
 
         print("🟢 Sign-to-text 모드 시작 (Ctrl+C로 종료)")
+        picam2.start_and_record_video("buffer.mp4", duration=10)
         while True:
             frame = picam2.capture_array()
             success, buffer = cv2.imencode('.jpg', frame)
