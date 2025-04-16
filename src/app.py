@@ -77,9 +77,11 @@ def sign_to_text_mode():
             start_time = time.time()
             response = requests.post(f"http://{SERVER_URL}/upload_sign_video?api_key={API_KEY}", files=files, stream=True)
             end_time = time.time()
+            print('1')
             content = response.content.decode('utf-8')
+            print('2')
             retrieve_time = time.time()
-            content_json = json.load(content)
+            content_json = json.loads(content)
             pretty = json.dumps(content_json, indent=2, ensure_ascii=False)
             
             print(f'Upload Delay: {end_time - start_time}')
