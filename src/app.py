@@ -70,8 +70,9 @@ def sign_to_text_mode():
         #    "-c:a", "copy",
         #    "buffer_rotated.mp4"
         #])
-        with open('test.mp4', 'rb') as f:
-            files = {'file': ('test.mp4', f, 'video/mp4')}
+        filename = input("Write the file name: ")
+        with open(filename, 'rb') as f:
+            files = {'file': (filename, f, 'video/mp4')}
             start_time = time.time()
             response = requests.post(f"http://{SERVER_URL}/upload_sign_video?api_key={API_KEY}", files=files, stream=True)
             end_time = time.time()
@@ -128,6 +129,8 @@ def speech_to_sign_mode():
             print(f"[✓] 비디오 저장 완료: {output_path}")
         else:
             print(f"[!] 서버 오류: {response.text}")
+        
+        play_video_on_display('output_video.mp4', 15)
 
     except Exception as e:
         print(f"[!] 오류 발생: {str(e)}")
