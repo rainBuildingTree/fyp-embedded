@@ -73,10 +73,13 @@ def sign_to_text_mode():
         with open('test.mp4', 'rb') as f:
             files = {'file': ('test.mp4', f, 'video/mp4')}
             start_time = time.time()
-            response = requests.post(f"http://{SERVER_URL}/upload_sign_video?api_key={API_KEY}", files=files)
+            response = requests.post(f"http://{SERVER_URL}/upload_sign_video?api_key={API_KEY}", files=files, stream=True)
             end_time = time.time()
-            print(f'Delay: {end_time - start_time}')
-            print(str(response.content))
+            content = response.content
+            retrieve_time = time.time()
+            print(f'Upload Delay: {end_time - start_time}')
+            print(f'Retrieve Delay: {retrieve_time - end_time}')
+            print(str(content))
             #with open('output_video.mp4', 'wb') as outputb:
             #    outputb.write(response.content)
         #play_video_on_display('output_video.mp4', 15)
