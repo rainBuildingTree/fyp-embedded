@@ -61,17 +61,12 @@ def sign_to_text_mode():
     try:
         print("🟢 Sign-to-text Mode Start (Ctrl+C to quit)")
 
-        # 파일 입력
         filename = input("📂 Write the file name: ")
         with open(filename, 'rb') as f:
             files = {'file': (filename, f, 'video/mp4')}
-            
-            # 업로드 시간 측정
             start_time = time.time()
             response = requests.post(f"http://{SERVER_URL}/upload_sign_video?api_key={API_KEY}", files=files, stream=True)
             end_time = time.time()
-            
-            # 응답 디코딩
             content = response.content.decode('utf-8')
             retrieve_time = time.time()
             content_json = json.loads(content)
@@ -83,14 +78,27 @@ def sign_to_text_mode():
 
             # 디스플레이 준비
             display = dpd.DisplayDriver()
-            display.render_square(0, 0, 128, 128, 0xFFFF)  # 화면 초기화 (흰색)
+            display.render_square(0, 0, 128, 128, 0xFFFF)
 
-            # final_prediction 표시
+            # 최종 예측 텍스트 준비
             if "final_prediction" in content_json:
                 prediction_text = content_json["final_prediction"].upper()
-                display.render_text(0, 0, f"{prediction_text}")
             else:
-                display.render_text(0, 0, "NO PREDICTION FOUND")
+                prediction_text = "NO PREDICTION FOUND"
+
+            # 여러 줄로 나누기 (줄당 최대 문자 수 = 128 / FONT_WIDTH)
+            max_chars_per_line = 128 // display.FONT_WIDTH  # 128 / 20 = 6
+            lines = [prediction_text[i:i + max_chars_per_line] for i in range(0, len(prediction_text), max_chars_per_line)]
+
+            total_text_height = len(lines) * display.FONT_HEIGHT
+            start_y = max((128 - total_text_height) // 2, 0)
+
+            # 줄마다 중앙 정렬하여 출력
+            for idx, line in enumerate(lines):
+                line_width = len(line) * display.FONT_WIDTH
+                x = max((128 - line_width) // 2, 0)
+                y = start_y + idx * display.FONT_HEIGHT
+                display.render_text(x, y, line)
 
             input("🔵 press any key to close...")
             
