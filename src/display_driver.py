@@ -31,8 +31,8 @@ class DisplayDriver:
     SPI_DEVICE = 0
     DISPLAY_WIDTH = 128
     DISPLAY_HEIGHT = 128
-    FONT_WIDTH = 10
-    FONT_HEIGHT = 15
+    FONT_WIDTH = 20
+    FONT_HEIGHT = 30
     FONT_LOCATION = './font_images/'
 
     def __init__(self):
