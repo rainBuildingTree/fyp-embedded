@@ -58,35 +58,38 @@ def on_error(data):
 
 def sign_to_text_mode():
     try:
-        #sio.mode = "sign-to-text"
-        #sio.connect(f"ws://{SERVER_URL}?api_key={API_KEY}&mode=sign-to-text")
-        #picam2.start()
+        print("🟢 Sign-to-text Mode Start (Ctrl+C to quit)")
 
-        print("Sign-to-text Mode Start (Ctrl+C to quit)")
-        #picam2.start_and_record_video("buffer.mp4", duration=10)
-        #time.sleep(1.0)
-        #subprocess.run([
-        #    "ffmpeg", "-y", "-i", "buffer.mp4",
-        #    "-vf", "transpose=1",  # 실제 회전
-        #    "-c:a", "copy",
-        #    "buffer_rotated.mp4"
-        #])
-        filename = input("Write the file name: ")
+        # 파일 입력
+        filename = input("📂 Write the file name: ")
         with open(filename, 'rb') as f:
             files = {'file': (filename, f, 'video/mp4')}
+            
+            # 업로드 시간 측정
             start_time = time.time()
             response = requests.post(f"http://{SERVER_URL}/upload_sign_video?api_key={API_KEY}", files=files, stream=True)
             end_time = time.time()
-            print('1')
+            
+            # 응답 디코딩
             content = response.content.decode('utf-8')
-            print('2')
             retrieve_time = time.time()
             content_json = json.loads(content)
             pretty = json.dumps(content_json, indent=2, ensure_ascii=False)
-            
-            print(f'Upload Delay: {end_time - start_time}')
-            print(f'Retrieve Delay: {retrieve_time - end_time}')
+
+            print(f'⏱️ Upload Delay: {end_time - start_time:.3f} sec')
+            print(f'⏱️ Retrieve Delay: {retrieve_time - end_time:.3f} sec')
             print(pretty)
+
+            # 디스플레이 준비
+            display = dpd.DisplayDriver()
+            display.render_square(0, 0, 128, 128, 0xFFFF)  # 화면 초기화 (흰색)
+
+            # final_prediction 표시
+            if "final_prediction" in content_json:
+                prediction_text = content_json["final_prediction"].upper()
+                display.render_text(0, 0, f"{prediction_text}")
+            else:
+                display.render_text(0, 0, "NO PREDICTION FOUND")
             
             #with open('output_video.mp4', 'wb') as outputb:
             #    outputb.write(response.content)
