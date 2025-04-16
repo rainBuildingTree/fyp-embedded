@@ -91,6 +91,8 @@ def sign_to_text_mode():
                 display.render_text(0, 0, f"{prediction_text}")
             else:
                 display.render_text(0, 0, "NO PREDICTION FOUND")
+
+            input("🔵 press any key to close...")
             
             #with open('output_video.mp4', 'wb') as outputb:
             #    outputb.write(response.content)
