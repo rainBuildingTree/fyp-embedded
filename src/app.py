@@ -21,6 +21,7 @@ from video_play import *
 print("video play loaded")
 print("Module Loading Finished!\n")
 import subprocess
+import json
 
 from picamera2 import Picamera2
 picam2 = Picamera2()
@@ -61,7 +62,7 @@ def sign_to_text_mode():
         #sio.connect(f"ws://{SERVER_URL}?api_key={API_KEY}&mode=sign-to-text")
         #picam2.start()
 
-        print("Sign-to-text 모드 시작 (Ctrl+C로 종료)")
+        print("Sign-to-text Mode Start (Ctrl+C to quit)")
         #picam2.start_and_record_video("buffer.mp4", duration=10)
         #time.sleep(1.0)
         #subprocess.run([
@@ -76,11 +77,15 @@ def sign_to_text_mode():
             start_time = time.time()
             response = requests.post(f"http://{SERVER_URL}/upload_sign_video?api_key={API_KEY}", files=files, stream=True)
             end_time = time.time()
-            content = response.content
+            content = response.content.decode('utf-8')
             retrieve_time = time.time()
+            content_json = json.load(content)
+            pretty = json.dumps(content_json, indent=2, ensure_ascii=False)
+            
             print(f'Upload Delay: {end_time - start_time}')
             print(f'Retrieve Delay: {retrieve_time - end_time}')
-            print(str(content))
+            print(pretty)
+            
             #with open('output_video.mp4', 'wb') as outputb:
             #    outputb.write(response.content)
         #play_video_on_display('output_video.mp4', 15)
@@ -94,9 +99,9 @@ def sign_to_text_mode():
         #    time.sleep(0.05)
 
     except KeyboardInterrupt:
-        print("\n[!] 사용자 중단. Sign-to-text 종료.")
+        print("\n[!] User interrupt. Sign-to-text exit.")
     except Exception as e:
-        print(f"[!] 오류 발생: {str(e)}")
+        print(f"[!] Error occured: {str(e)}")
     finally:
         picam2.stop()
         if sio.connected:
@@ -105,14 +110,14 @@ def sign_to_text_mode():
 def speech_to_sign_mode():
     audio_path = "input_audio.wav"
     try:
-        print("🎤 음성 녹음 중 (10초)...")
+        print("🎤 recording (10 secs)...")
         duration = 10
         samplerate = 16000
         audio = sd.rec(int(duration * samplerate), samplerate=samplerate, channels=1, dtype='int16')
         sd.wait()
 
         write(audio_path, samplerate, audio)
-        print(f"[✓] 오디오 저장 완료: {audio_path}")
+        print(f"[✓] audio saving finished: {audio_path}")
 
         # 서버 연결 (socket.io는 실제 사용 안 함)
         sio.mode = "speech-to-sign"
@@ -126,14 +131,14 @@ def speech_to_sign_mode():
             output_path = "output_video.mp4"
             with open(output_path, "wb") as f:
                 f.write(response.content)
-            print(f"[✓] 비디오 저장 완료: {output_path}")
+            print(f"[✓] video saving finished: {output_path}")
         else:
-            print(f"[!] 서버 오류: {response.text}")
+            print(f"[!] server error: {response.text}")
         
         play_video_on_display('output_video.mp4', 15)
 
     except Exception as e:
-        print(f"[!] 오류 발생: {str(e)}")
+        print(f"[!] error occured: {str(e)}")
     finally:
         if sio.connected:
             sio.disconnect()
@@ -146,23 +151,23 @@ print("Start Main Program")
 def main():
     try:
         while True:
-            print("\n=== 모드 선택 ===")
-            print("1. 손말 → 텍스트 (sign-to-text)")
-            print("2. 음성 → 손말 (speech-to-sign)")
-            print("3. 종료")
-            selected_mode = input("모드를 선택하세요 (1/2/3): ").strip()
+            print("\n=== Mode Selection ===")
+            print("1.  (sign-to-text)")
+            print("2.  (speech-to-sign)")
+            print("3. exit")
+            selected_mode = input("Select Mode (1/2/3): ").strip()
 
             if selected_mode == "1":
                 sign_to_text_mode()
             elif selected_mode == "2":
                 speech_to_sign_mode()
             elif selected_mode == "3":
-                print("👋 프로그램 종료.")
+                print("👋 program exit")
                 break
             else:
-                print("❌ 잘못된 입력입니다. 다시 선택하세요.")
+                print("❌ Wrong input, select again")
     except KeyboardInterrupt:
-        print("\n👋 프로그램 강제 종료됨.")
+        print("\n👋 Force program exit")
 
 if __name__ == "__main__":
     main()
