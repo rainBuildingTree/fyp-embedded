@@ -22,6 +22,7 @@ print("video play loaded")
 print("Module Loading Finished!\n")
 import subprocess
 import json
+import display_driver as dpd
 
 from picamera2 import Picamera2
 picam2 = Picamera2()
