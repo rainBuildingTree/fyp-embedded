@@ -141,7 +141,7 @@ def speech_to_sign_mode():
 
         #with open(audio_path, 'rb') as f:
         #files = {'file': (audio_path, f, 'audio/wav')}
-        response = requests.post(f"http://{SERVER_URL}/handle_audio", data={'text':"HI HOW ARE YOU"})#files=files)
+        response = requests.post(f"http://{SERVER_URL}/predict_video", data={'text':"HI HOW ARE YOU"})#files=files)
 
         if response.status_code == 200:
             output_path = "output_video.mp4"
