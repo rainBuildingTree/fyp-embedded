@@ -129,19 +129,19 @@ def speech_to_sign_mode():
         print("🎤 recording (10 secs)...")
         duration = 10
         samplerate = 16000
-        audio = sd.rec(int(duration * samplerate), samplerate=samplerate, channels=1, dtype='int16')
-        sd.wait()
+        #audio = sd.rec(int(duration * samplerate), samplerate=samplerate, channels=1, dtype='int16')
+        #sd.wait()
 
-        write(audio_path, samplerate, audio)
+        #write(audio_path, samplerate, audio)
         print(f"[✓] audio saving finished: {audio_path}")
 
         # 서버 연결 (socket.io는 실제 사용 안 함)
         #sio.mode = "speech-to-sign"
         #sio.connect(f"http://{SERVER_URL}?api_key={API_KEY}&mode=speech-to-sign")
 
-        with open(audio_path, 'rb') as f:
-            files = {'file': (audio_path, f, 'audio/wav')}
-            response = requests.post(f"http://{SERVER_URL}/handle_audio", files=files)
+        #with open(audio_path, 'rb') as f:
+        #files = {'file': (audio_path, f, 'audio/wav')}
+        response = requests.post(f"http://{SERVER_URL}/handle_audio", data={'text':"HI HOW ARE YOU"})#files=files)
 
         if response.status_code == 200:
             output_path = "output_video.mp4"
