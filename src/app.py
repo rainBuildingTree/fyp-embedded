@@ -29,7 +29,7 @@ picam2 = Picamera2()
 picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}))
 
 print("Start Data Initializing...\n")
-SERVER_URL = "143.89.94.254:5000"
+SERVER_URL = "10.89.100.33:5000"
 API_KEY = "1234"
 
 # Picamera2 초기화 및 설정 (비디오 해상도: 640x480)
