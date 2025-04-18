@@ -136,8 +136,8 @@ def speech_to_sign_mode():
         print(f"[✓] audio saving finished: {audio_path}")
 
         # 서버 연결 (socket.io는 실제 사용 안 함)
-        sio.mode = "speech-to-sign"
-        sio.connect(f"http://{SERVER_URL}?api_key={API_KEY}&mode=speech-to-sign")
+        #sio.mode = "speech-to-sign"
+        #sio.connect(f"http://{SERVER_URL}?api_key={API_KEY}&mode=speech-to-sign")
 
         with open(audio_path, 'rb') as f:
             files = {'file': (audio_path, f, 'audio/wav')}
